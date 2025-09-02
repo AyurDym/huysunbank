@@ -6,14 +6,8 @@
     <title>АО «Хуйсуньбанк» — Финансовые операции с приветом</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Современный сброс стилей и базовые настройки */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
             --primary: #7c3aed;
             --primary-hover: #6d28d9;
@@ -24,9 +18,17 @@
             --text-secondary: #cbd5e1;
             --success: #10b981;
             --error: #ef4444;
+            --warning: #f59e0b;
             --border: rgba(255, 255, 255, 0.1);
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             --glass: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
@@ -36,34 +38,28 @@
             min-height: 100vh;
             padding: 20px;
             line-height: 1.6;
+            background-image: 
+                radial-gradient(at 80% 20%, rgba(124, 58, 237, 0.15) 0, transparent 60%),
+                radial-gradient(at 20% 80%, rgba(236, 72, 153, 0.15) 0, transparent 60%);
         }
 
-        .main-container {
+        .app-container {
             max-width: 1200px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 30px;
-        }
-
-        @media (max-width: 900px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .container {
-            background: var(--surface);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
         }
 
         h1 {
@@ -76,23 +72,124 @@
             margin-bottom: 8px;
         }
 
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 30px auto;
+            position: relative;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            color: var(--text-secondary);
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .step-circle.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+        }
+
+        .step-circle.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step-title {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .step-circle.active + .step-title,
+        .step-circle.completed + .step-title {
+            color: var(--text-primary);
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            height: 2px;
+            width: 100%;
+            background: var(--border);
+            z-index: 1;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: var(--transition);
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .container {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .container.highlight {
+            box-shadow: 0 0 0 2px var(--primary);
+            transform: translateY(-5px);
+        }
+
         h2 {
             font-size: 1.8rem;
             margin-bottom: 20px;
             color: var(--text-primary);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        h3 {
-            font-size: 1.3rem;
-            margin: 25px 0 15px 0;
-            color: var(--accent);
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 8px;
+        h2 i {
+            color: var(--primary);
         }
 
         .divider {
@@ -102,11 +199,27 @@
         }
 
         .form-section {
-            margin-bottom: 32px;
+            margin-bottom: 25px;
         }
 
         .form-group {
             margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            font-size: 0.9em;
         }
 
         input, textarea, select {
@@ -117,7 +230,7 @@
             border-radius: 16px;
             color: var(--text-primary);
             font-size: 16px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         input:focus, textarea:focus, select:focus {
@@ -141,9 +254,13 @@
             font-weight: 600;
             border-radius: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
             margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         button:hover {
@@ -161,6 +278,12 @@
         button.secondary:hover {
             background: var(--primary);
             color: white;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         #status {
@@ -184,12 +307,17 @@
             border: 1px solid var(--error);
         }
 
+        .warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
         .footer {
             margin-top: 40px;
             text-align: center;
             color: var(--text-secondary);
             font-size: 14px;
-            grid-column: 1 / -1;
         }
 
         .footer p {
@@ -204,12 +332,14 @@
             border-radius: 15px;
             margin: 20px 0;
             display: none;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
         .document h2 {
             color: #000;
             text-align: center;
             margin-bottom: 20px;
+            justify-content: center;
         }
 
         .document-section {
@@ -233,6 +363,23 @@
             animation: fadeIn 0.6s ease-out;
         }
 
+        /* Уведомление о необходимости расписки */
+        .requirement-notice {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .requirement-notice i {
+            font-size: 1.5rem;
+        }
+
         /* Специальные эффекты */
         .glow {
             position: fixed;
@@ -249,113 +396,154 @@
     <div class="glow" style="top: 20%; left: 10%;"></div>
     <div class="glow" style="bottom: 30%; right: 15%; background: radial-gradient(circle, var(--accent) 0%, transparent 70%);"></div>
 
-    <div class="main-container">
-        <!-- Левая колонка - Заявка на кредит -->
-        <div class="container">
-            <div class="header">
-                <h1>АО «Хуйсуньбанк»</h1>
-                <p class="subtitle">Финансовые операции с приветом</p>
-                <p class="subtitle">Лицензия: «На словечко и на честном глазу»</p>
+    <div class="app-container">
+        <div class="header">
+            <h1>АО «Хуйсуньбанк»</h1>
+            <p class="subtitle">Финансовые операции с приветом</p>
+            <p class="subtitle">Лицензия: «На словечко и на честном глазу»</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <div class="progress-step">
+                    <div class="step-circle active" id="step1">1</div>
+                    <div class="step-title">Заполнение заявки</div>
+                </div>
+                
+                <div class="progress-step">
+                    <div class="step-circle" id="step2">2</div>
+                    <div class="step-title">Создание расписки</div>
+                </div>
+                
+                <div class="progress-step">
+                    <div class="step-circle" id="step3">3</div>
+                    <div class="step-title">Отправка заявки</div>
+                </div>
             </div>
+        </div>
 
-            <div class="divider"></div>
-
-            <div class="form-section">
-                <h2>Подать заявку на кредит</h2>
+        <div class="form-container">
+            <!-- Левая колонка - Заявка на кредит -->
+            <div class="container" id="loanContainer">
+                <h2><i class="fas fa-file-alt"></i> Подать заявку на кредит</h2>
                 <p style="color: var(--text-secondary); margin-bottom: 24px;">Хочешь денег? Мы хотим посмотреть, кто ты такой. Заполни форму, и maybe мы с тобой свяжемся.</p>
+                
+                <div class="requirement-notice">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>Для подачи заявки необходимо сначала создать официальную расписку</div>
+                </div>
                 
                 <form id="loanForm">
                     <div class="form-group">
-                        <input type="text" id="name" placeholder="Как тебя зовут?" required>
+                        <label for="name"><i class="fas fa-user"></i> Как тебя зовут?</label>
+                        <input type="text" id="name" placeholder="Ваше полное имя" required>
                     </div>
                     <div class="form-group">
-                        <input type="number" id="amount" placeholder="Сколько надо? (руб.)" required>
+                        <label for="amount"><i class="fas fa-ruble-sign"></i> Сколько надо?</label>
+                        <input type="number" id="amount" placeholder="Сумма в рублях" required>
                     </div>
                     <div class="form-group">
-                        <textarea id="purpose" placeholder="На что потратишь? (Честно)" rows="3" required></textarea>
+                        <label for="purpose"><i class="fas fa-bullseye"></i> На что потратишь?</label>
+                        <textarea id="purpose" placeholder="Честно расскажите, на что нужны деньги" rows="3" required></textarea>
                     </div>
                     <div class="form-group">
-                        <input type="text" id="contact" placeholder="Твой Telegram или телефон">
+                        <label for="contact"><i class="fas fa-paper-plane"></i> Твой Telegram или телефон</label>
+                        <input type="text" id="contact" placeholder="@username или +7XXX...">
                     </div>
-                    <button type="submit">Отправить заявку</button>
+                    <button type="submit" id="submitLoanBtn" disabled>
+                        <i class="fas fa-lock"></i> Сначала создайте расписку
+                    </button>
                 </form>
                 
                 <div id="status"></div>
             </div>
-        </div>
 
-        <!-- Правая колонка - Официальный документ -->
-        <div class="container">
-            <h2>Официальный документ</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">Заполни данные для генерации официальной расписки</p>
+            <!-- Правая колонка - Официальный документ -->
+            <div class="container" id="documentContainer">
+                <h2><i class="fas fa-file-contract"></i> Официальная расписка</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Заполни данные для генерации официальной расписки (обязательно для получения займа)</p>
 
-            <form id="documentForm">
-                <div class="form-group">
-                    <input type="text" id="docName" placeholder="ФИО заёмщика" required>
-                </div>
-                <div class="form-group">
-                    <input type="number" id="docAmount" placeholder="Сумма займа (руб.)" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="docPurpose" placeholder="Цель займа" required>
-                </div>
-                <div class="form-group">
-                    <input type="date" id="docDate" required>
-                </div>
-                <div class="form-group">
-                    <input type="date" id="docReturnDate" required>
-                </div>
-                <button type="button" onclick="generateDocument()">Сгенерировать документ</button>
-            </form>
+                <form id="documentForm">
+                    <div class="form-group">
+                        <label for="docName"><i class="fas fa-signature"></i> ФИО заёмщика</label>
+                        <input type="text" id="docName" placeholder="Ваше полное имя" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docAmount"><i class="fas fa-money-bill-wave"></i> Сумма займа</label>
+                        <input type="number" id="docAmount" placeholder="Сумма в рублях" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docPurpose"><i class="fas fa-crosshairs"></i> Цель займа</label>
+                        <input type="text" id="docPurpose" placeholder="На что будут использованы средства" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docDate"><i class="fas fa-calendar-alt"></i> Дата получения</label>
+                        <input type="date" id="docDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docReturnDate"><i class="fas fa-calendar-check"></i> Дата возврата</label>
+                        <input type="date" id="docReturnDate" required>
+                    </div>
+                    <button type="button" onclick="generateDocument()">
+                        <i class="fas fa-file-pdf"></i> Сгенерировать расписку
+                    </button>
+                </form>
 
-            <!-- Документ для предпросмотра -->
-            <div id="documentPreview" class="document">
-                <h2>ОФИЦИАЛЬНЫЙ ДОГОВОР ЗАЙМА</h2>
-                <p><strong>АО «Хуйсуньбанк»</strong></p>
-                <p>Лицензия: «На словечко и на честном глазу»</p>
+                <!-- Документ для предпросмотра -->
+                <div id="documentPreview" class="document">
+                    <h2><i class="fas fa-file-signature"></i> ОФИЦИАЛЬНЫЙ ДОГОВОР ЗАЙМА</h2>
+                    <p><strong>АО «Хуйсуньбанк»</strong></p>
+                    <p>Лицензия: «На словечко и на честном глазу»</p>
+                    
+                    <div class="document-section">
+                        <p>г. Улан-Удэ</p>
+                        <p>«<span id="previewDate"></span>»</p>
+                    </div>
+
+                    <div class="document-section">
+                        <p>Настоящим документом АО «Хуйсуньбанк», в лице его Главного Похуиста, именуемый в дальнейшем «Банк», передаёт, а физическое лицо:</p>
+                        <p>Имя должника: <span id="previewName"></span></p>
+                        <p>Кредитный рейтинг в природе: «Нестабильный, но милый»</p>
+                    </div>
+
+                    <div class="document-section">
+                        <p>именуемое в дальнейшем «Должник», получает денежные средства в размере:</p>
+                        <p><strong><span id="previewAmount"></span> рублей</strong></p>
+                        <p>Цель займа: <span id="previewPurpose"></span></p>
+                    </div>
+
+                    <div class="document-section">
+                        <h3>УСЛОВИЯ ВЫДАЧИ «НА СЛОВЕЧКО»:</h3>
+                        <p>• Срок возврата: До «<span id="previewReturnDate"></span>»</p>
+                        <p>• Процентная ставка: 50% годовых</p>
+                    </div>
+
+                    <div class="document-section">
+                        <h3>ВАЖНОЕ ПРЕДУПРЕЖДЕНИЕ:</h3>
+                        <p>В случае невозврата средств в установленный срок, АО «Хуйсуньбанк» вправе инициировать процедуру лёгкого троллинга.</p>
+                    </div>
+
+                    <div class="signature-line">
+                        <p>Подпись должника: _________________________</p>
+                    </div>
+
+                    <div class="signature-line">
+                        <p>Подпись представителя банка: _________________________</p>
+                    </div>
+
+                    <p style="margin-top: 20px; font-style: italic;">
+                        P.S. Верни вовремя, и я спишу тебя в святые. Не вернёшь — станешь пидором. Выбор за тобой! 😊
+                    </p>
+                </div>
+
+                <button id="downloadBtn" class="secondary" style="display: none;" onclick="downloadPDF()">
+                    <i class="fas fa-download"></i> Скачать PDF
+                </button>
                 
-                <div class="document-section">
-                    <p>г. Улан-Удэ</p>
-                    <p>«<span id="previewDate"></span>»</p>
-                </div>
-
-                <div class="document-section">
-                    <p>Настоящим документом АО «Хуйсуньбанк», в лице его Главного Похуиста, именуемый в дальнейшем «Банк», передаёт, а физическое лицо:</p>
-                    <p>Имя должника: <span id="previewName"></span></p>
-                    <p>Кредитный рейтинг в природе: «Нестабильный, но милый»</p>
-                </div>
-
-                <div class="document-section">
-                    <p>именуемое в дальнейшем «Должник», получает денежные средства в размере:</p>
-                    <p><strong><span id="previewAmount"></span> рублей</strong></p>
-                    <p>Цель займа: <span id="previewPurpose"></span></p>
-                </div>
-
-                <div class="document-section">
-                    <h3>УСЛОВИЯ ВЫДАЧИ «НА СЛОВЕЧКО»:</h3>
-                    <p>• Срок возврата: До «<span id="previewReturnDate"></span>»</p>
-                    <p>• Процентная ставка: 50% годовых</p>
-                </div>
-
-                <div class="document-section">
-                    <h3>ВАЖНОЕ ПРЕДУПРЕЖДЕНИЕ:</h3>
-                    <p>В случае невозврата средств в установленный срок, АО «Хуйсуньбанк» вправе инициировать процедуру лёгкого троллинга.</p>
-                </div>
-
-                <div class="signature-line">
-                    <p>Подпись должника: _________________________</p>
-                </div>
-
-                <div class="signature-line">
-                    <p>Подпись представителя банка: _________________________</p>
-                </div>
-
-                <p style="margin-top: 20px; font-style: italic;">
-                    P.S. Верни вовремя, и я спишу тебя в святые. Не вернёшь — станешь пидором. Выбор за тобой! 😊
-                </p>
+                <div id="docStatus"></div>
             </div>
-
-            <button id="downloadBtn" class="secondary" style="display: none;" onclick="downloadPDF()">Скачать PDF</button>
         </div>
 
         <div class="footer">
@@ -365,15 +553,187 @@
     </div>
 
     <script>
+        // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
+        const BOT_TOKEN = '8438374437:AAGZ3cflLeD7HcDW_N9CsWfMpOU_ny6vfjY';
+        const CHAT_ID = '5793630012';
+        let documentGenerated = false;
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Устанавливаем сегодняшнюю дату по умолчанию
+            const today = new Date().toISOString().split('T')[0];
+            const returnDate = new Date();
+            returnDate.setMonth(returnDate.getMonth() + 1);
+            const returnDateStr = returnDate.toISOString().split('T')[0];
+            
+            document.getElementById('docDate').value = today;
+            document.getElementById('docReturnDate').value = returnDateStr;
+            
+            // Синхронизация полей между формами
+            document.getElementById('name').addEventListener('input', syncFields);
+            document.getElementById('amount').addEventListener('input', syncFields);
+            document.getElementById('purpose').addEventListener('input', syncFields);
+            document.getElementById('docName').addEventListener('input', syncFields);
+            document.getElementById('docAmount').addEventListener('input', syncFields);
+            document.getElementById('docPurpose').addEventListener('input', syncFields);
+        });
+
+        // ===== СИНХРОНИЗАЦИЯ ПОЛЕЙ МЕЖДУ ФОРМАМИ =====
+        function syncFields(e) {
+            const sourceId = e.target.id;
+            
+            // Сопоставление полей между формами
+            const fieldMap = {
+                'name': 'docName',
+                'amount': 'docAmount',
+                'purpose': 'docPurpose',
+                'docName': 'name',
+                'docAmount': 'amount',
+                'docPurpose': 'purpose'
+            };
+            
+            if (fieldMap[sourceId]) {
+                document.getElementById(fieldMap[sourceId]).value = e.target.value;
+            }
+        }
+
+        // ===== ОБНОВЛЕНИЕ ПРОГРЕССА =====
+        function updateProgress(step) {
+            // Обновляем шаги
+            document.getElementById('step1').className = 'step-circle';
+            document.getElementById('step2').className = 'step-circle';
+            document.getElementById('step3').className = 'step-circle';
+            
+            // Заполняем прогресс бар
+            const progressFill = document.getElementById('progressFill');
+            
+            if (step === 1) {
+                document.getElementById('step1').className = 'step-circle active';
+                progressFill.style.width = '0%';
+            } else if (step === 2) {
+                document.getElementById('step1').className = 'step-circle completed';
+                document.getElementById('step2').className = 'step-circle active';
+                progressFill.style.width = '50%';
+            } else if (step === 3) {
+                document.getElementById('step1').className = 'step-circle completed';
+                document.getElementById('step2').className = 'step-circle completed';
+                document.getElementById('step3').className = 'step-circle active';
+                progressFill.style.width = '100%';
+            }
+        }
+
+        // ===== ГЕНЕРАЦИЯ ДОКУМЕНТА =====
+        function generateDocument() {
+            const name = document.getElementById('docName').value;
+            const amount = document.getElementById('docAmount').value;
+            const purpose = document.getElementById('docPurpose').value;
+            const date = document.getElementById('docDate').value;
+            const returnDate = document.getElementById('docReturnDate').value;
+
+            if (!name || !amount || !purpose || !date || !returnDate) {
+                showDocumentStatus('Заполни все поля, браток!', 'error');
+                return;
+            }
+
+            // Форматируем даты
+            const formatDate = (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('ru-RU');
+            };
+
+            // Заполняем документ
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('previewAmount').textContent = new Intl.NumberFormat('ru-RU').format(amount);
+            document.getElementById('previewPurpose').textContent = purpose;
+            document.getElementById('previewDate').textContent = formatDate(date);
+            document.getElementById('previewReturnDate').textContent = formatDate(returnDate);
+
+            // Показываем документ и кнопку скачивания
+            document.getElementById('documentPreview').style.display = 'block';
+            document.getElementById('downloadBtn').style.display = 'block';
+
+            // Активируем кнопку отправки заявки
+            document.getElementById('submitLoanBtn').disabled = false;
+            document.getElementById('submitLoanBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Отправить заявку';
+            
+            // Обновляем прогресс
+            updateProgress(2);
+            
+            // Прокручиваем к документу
+            document.getElementById('documentPreview').scrollIntoView({ behavior: 'smooth' });
+            
+            // Показываем уведомление
+            showDocumentStatus('Расписка создана! Теперь можно отправить заявку.', 'success');
+            
+            // Подсвечиваем форму заявки
+            document.getElementById('loanContainer').classList.add('highlight');
+            setTimeout(() => {
+                document.getElementById('loanContainer').classList.remove('highlight');
+            }, 2000);
+            
+            // Устанавливаем флаг, что документ создан
+            documentGenerated = true;
+        }
+
+        function showDocumentStatus(message, type) {
+            const statusDiv = document.getElementById('docStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+        }
+
+        // ===== СКАЧИВАНИЕ PDF =====
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const documentContent = document.getElementById('documentPreview');
+            
+            html2canvas(documentContent).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                doc.save('Расписка_Хуйсуньбанк.pdf');
+                showDocumentStatus('Расписка сохранена в PDF!', 'success');
+            });
+        }
+
         // ===== ОБРАБОТКА ЗАЯВКИ НА КРЕДИТ =====
         const form = document.getElementById('loanForm');
         const statusDiv = document.getElementById('status');
 
-        const BOT_TOKEN = '8438374437:AAGZ3cflLeD7HcDW_N9CsWfMpOU_ny6vfjY';
-        const CHAT_ID = '5793630012';
-
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Проверяем, создана ли расписка
+            if (!documentGenerated) {
+                statusDiv.textContent = 'Сначала нужно создать расписку!';
+                statusDiv.className = 'error';
+                
+                // Подсвечиваем контейнер с документом
+                document.getElementById('documentContainer').classList.add('highlight');
+                setTimeout(() => {
+                    document.getElementById('documentContainer').classList.remove('highlight');
+                }, 2000);
+                
+                // Прокручиваем к форме документа
+                document.getElementById('documentContainer').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
             
             const name = document.getElementById('name').value;
             const amount = document.getElementById('amount').value;
@@ -410,6 +770,9 @@ _Дата: ${new Date().toLocaleString()}_`;
                     statusDiv.textContent = 'Заявка отправлена! Скоро с тобой свяжутся (или нет).';
                     statusDiv.className = 'success';
                     form.reset();
+                    
+                    // Обновляем прогресс
+                    updateProgress(3);
                 } else {
                     throw new Error(data.description);
                 }
@@ -419,81 +782,6 @@ _Дата: ${new Date().toLocaleString()}_`;
                 console.error('Ошибка отправки:', error);
             }
         });
-
-        // ===== ГЕНЕРАЦИЯ ДОКУМЕНТА =====
-        function generateDocument() {
-            const name = document.getElementById('docName').value;
-            const amount = document.getElementById('docAmount').value;
-            const purpose = document.getElementById('docPurpose').value;
-            const date = document.getElementById('docDate').value;
-            const returnDate = document.getElementById('docReturnDate').value;
-
-            if (!name || !amount || !purpose || !date || !returnDate) {
-                alert('Заполни все поля, браток!');
-                return;
-            }
-
-            // Форматируем даты
-            const formatDate = (dateStr) => {
-                const date = new Date(dateStr);
-                return date.toLocaleDateString('ru-RU');
-            };
-
-            // Заполняем документ
-            document.getElementById('previewName').textContent = name;
-            document.getElementById('previewAmount').textContent = amount;
-            document.getElementById('previewPurpose').textContent = purpose;
-            document.getElementById('previewDate').textContent = formatDate(date);
-            document.getElementById('previewReturnDate').textContent = formatDate(returnDate);
-
-            // Показываем документ и кнопку скачивания
-            document.getElementById('documentPreview').style.display = 'block';
-            document.getElementById('downloadBtn').style.display = 'block';
-
-            // Прокручиваем к документу
-            document.getElementById('documentPreview').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const documentContent = document.getElementById('documentPreview');
-            
-            html2canvas(documentContent).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 210; // A4 width in mm
-                const pageHeight = 297; // A4 height in mm
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-                
-                let heightLeft = imgHeight;
-                let position = 0;
-
-                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    doc.addPage();
-                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-
-                doc.save('Расписка_Хуйсуньбанк.pdf');
-            });
-        }
-
-        // Устанавливаем сегодняшнюю дату по умолчанию
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date().toISOString().split('T')[0];
-            const returnDate = new Date();
-            returnDate.setMonth(returnDate.getMonth() + 1);
-            const returnDateStr = returnDate.toISOString().split('T')[0];
-            
-            document.getElementById('docDate').value = today;
-            document.getElementById('docReturnDate').value = returnDateStr;
-        });
     </script>
 </body>
 </html>
-
