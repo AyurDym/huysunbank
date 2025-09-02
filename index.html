@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>АО «Хуйсуньбанк» — Финансовые операции с приветом</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* Современный сброс стилей и базовые настройки */
         * {
@@ -32,11 +34,22 @@
             background: var(--background);
             color: var(--text-primary);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
             line-height: 1.6;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .container {
@@ -44,8 +57,6 @@
             backdrop-filter: blur(10px);
             border-radius: 24px;
             padding: 40px;
-            width: 100%;
-            max-width: 500px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
         }
@@ -65,6 +76,19 @@
             margin-bottom: 8px;
         }
 
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin: 25px 0 15px 0;
+            color: var(--accent);
+        }
+
         .subtitle {
             color: var(--text-secondary);
             font-size: 1.1rem;
@@ -81,18 +105,11 @@
             margin-bottom: 32px;
         }
 
-        h2 {
-            font-size: 1.5rem;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
         .form-group {
             margin-bottom: 20px;
         }
 
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 16px;
             background: var(--glass);
@@ -103,7 +120,7 @@
             transition: all 0.3s ease;
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
@@ -126,6 +143,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            margin: 10px 0;
         }
 
         button:hover {
@@ -134,8 +152,15 @@
             background: linear-gradient(135deg, var(--primary-hover), #db2777);
         }
 
-        button:active {
-            transform: translateY(0);
+        button.secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        button.secondary:hover {
+            background: var(--primary);
+            color: white;
         }
 
         #status {
@@ -164,10 +189,38 @@
             text-align: center;
             color: var(--text-secondary);
             font-size: 14px;
+            grid-column: 1 / -1;
         }
 
         .footer p {
             margin-bottom: 8px;
+        }
+
+        /* Стили для документа */
+        .document {
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .document h2 {
+            color: #000;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .document-section {
+            margin-bottom: 20px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 60px;
+            padding-top: 10px;
+            text-align: center;
         }
 
         /* Анимации */
@@ -180,25 +233,9 @@
             animation: fadeIn 0.6s ease-out;
         }
 
-        /* Адаптивность */
-        @media (max-width: 600px) {
-            .container {
-                padding: 24px;
-                margin: 10px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            input, textarea, button {
-                padding: 14px;
-            }
-        }
-
         /* Специальные эффекты */
         .glow {
-            position: absolute;
+            position: fixed;
             width: 200px;
             height: 200px;
             background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
@@ -212,48 +249,123 @@
     <div class="glow" style="top: 20%; left: 10%;"></div>
     <div class="glow" style="bottom: 30%; right: 15%; background: radial-gradient(circle, var(--accent) 0%, transparent 70%);"></div>
 
-    <div class="container">
-        <div class="header">
-            <h1>АО «Хуйсуньбанк»</h1>
-            <p class="subtitle">Финансовые операции с приветом</p>
-            <p class="subtitle">Лицензия: «На словечко и на честном глазу»</p>
+    <div class="main-container">
+        <!-- Левая колонка - Заявка на кредит -->
+        <div class="container">
+            <div class="header">
+                <h1>АО «Хуйсуньбанк»</h1>
+                <p class="subtitle">Финансовые операции с приветом</p>
+                <p class="subtitle">Лицензия: «На словечко и на честном глазу»</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-section">
+                <h2>Подать заявку на кредит</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Хочешь денег? Мы хотим посмотреть, кто ты такой. Заполни форму, и maybe мы с тобой свяжемся.</p>
+                
+                <form id="loanForm">
+                    <div class="form-group">
+                        <input type="text" id="name" placeholder="Как тебя зовут?" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="amount" placeholder="Сколько надо? (руб.)" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="purpose" placeholder="На что потратишь? (Честно)" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="contact" placeholder="Твой Telegram или телефон">
+                    </div>
+                    <button type="submit">Отправить заявку</button>
+                </form>
+                
+                <div id="status"></div>
+            </div>
         </div>
 
-        <div class="divider"></div>
+        <!-- Правая колонка - Официальный документ -->
+        <div class="container">
+            <h2>Официальный документ</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Заполни данные для генерации официальной расписки</p>
 
-        <div class="form-section">
-            <h2>Подать заявку на кредит</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">Хочешь денег? Мы хотим посмотреть, кто ты такой. Заполни форму, и maybe мы с тобой свяжемся.</p>
-            
-            <form id="loanForm">
+            <form id="documentForm">
                 <div class="form-group">
-                    <input type="text" id="name" placeholder="Как тебя зовут?" required>
+                    <input type="text" id="docName" placeholder="ФИО заёмщика" required>
                 </div>
                 <div class="form-group">
-                    <input type="number" id="amount" placeholder="Сколько надо? (руб.)" required>
+                    <input type="number" id="docAmount" placeholder="Сумма займа (руб.)" required>
                 </div>
                 <div class="form-group">
-                    <textarea id="purpose" placeholder="На что потратишь? (Честно)" rows="3" required></textarea>
+                    <input type="text" id="docPurpose" placeholder="Цель займа" required>
                 </div>
                 <div class="form-group">
-                    <input type="text" id="contact" placeholder="Твой Telegram или телефон">
+                    <input type="date" id="docDate" required>
                 </div>
-                <button type="submit">Отправить заявку</button>
+                <div class="form-group">
+                    <input type="date" id="docReturnDate" required>
+                </div>
+                <button type="button" onclick="generateDocument()">Сгенерировать документ</button>
             </form>
-            
-            <div id="status"></div>
-        </div>
 
-        <div class="divider"></div>
+            <!-- Документ для предпросмотра -->
+            <div id="documentPreview" class="document">
+                <h2>ОФИЦИАЛЬНЫЙ ДОГОВОР ЗАЙМА</h2>
+                <p><strong>АО «Хуйсуньбанк»</strong></p>
+                <p>Лицензия: «На словечко и на честном глазу»</p>
+                
+                <div class="document-section">
+                    <p>г. Улан-Удэ</p>
+                    <p>«<span id="previewDate"></span>»</p>
+                </div>
+
+                <div class="document-section">
+                    <p>Настоящим документом АО «Хуйсуньбанк», в лице его Главного Похуиста, именуемый в дальнейшем «Банк», передаёт, а физическое лицо:</p>
+                    <p>Имя должника: <span id="previewName"></span></p>
+                    <p>Кредитный рейтинг в природе: «Нестабильный, но милый»</p>
+                </div>
+
+                <div class="document-section">
+                    <p>именуемое в дальнейшем «Должник», получает денежные средства в размере:</p>
+                    <p><strong><span id="previewAmount"></span> рублей</strong></p>
+                    <p>Цель займа: <span id="previewPurpose"></span></p>
+                </div>
+
+                <div class="document-section">
+                    <h3>УСЛОВИЯ ВЫДАЧИ «НА СЛОВЕЧКО»:</h3>
+                    <p>• Срок возврата: До «<span id="previewReturnDate"></span>»</p>
+                    <p>• Процентная ставка: 50% годовых</p>
+                </div>
+
+                <div class="document-section">
+                    <h3>ВАЖНОЕ ПРЕДУПРЕЖДЕНИЕ:</h3>
+                    <p>В случае невозврата средств в установленный срок, АО «Хуйсуньбанк» вправе инициировать процедуру лёгкого троллинга.</p>
+                </div>
+
+                <div class="signature-line">
+                    <p>Подпись должника: _________________________</p>
+                </div>
+
+                <div class="signature-line">
+                    <p>Подпись представителя банка: _________________________</p>
+                </div>
+
+                <p style="margin-top: 20px; font-style: italic;">
+                    P.S. Верни вовремя, и я спишу тебя в святые. Не вернёшь — станешь пидором. Выбор за тобой! 😊
+                </p>
+            </div>
+
+            <button id="downloadBtn" class="secondary" style="display: none;" onclick="downloadPDF()">Скачать PDF</button>
+        </div>
 
         <div class="footer">
             <p>© 2025 АО «Хуйсуньбанк». Официальный партнёр всех тусовок.</p>
-            <p>Наш адрес: г. Усть-Пиздюйск, ул. Хуевская, д. 69</p>
-            <p>Тел.: 8-800-ХУЙ-НАБО</p>
+            <p>Наш адрес: г. Усть-Пиздюйск, ул. Хуевская, д. 69 | Тел.: 8-800-ХУЙ-НАБО</p>
         </div>
     </div>
 
     <script>
+        // ===== ОБРАБОТКА ЗАЯВКИ НА КРЕДИТ =====
         const form = document.getElementById('loanForm');
         const statusDiv = document.getElementById('status');
 
@@ -307,6 +419,81 @@ _Дата: ${new Date().toLocaleString()}_`;
                 console.error('Ошибка отправки:', error);
             }
         });
+
+        // ===== ГЕНЕРАЦИЯ ДОКУМЕНТА =====
+        function generateDocument() {
+            const name = document.getElementById('docName').value;
+            const amount = document.getElementById('docAmount').value;
+            const purpose = document.getElementById('docPurpose').value;
+            const date = document.getElementById('docDate').value;
+            const returnDate = document.getElementById('docReturnDate').value;
+
+            if (!name || !amount || !purpose || !date || !returnDate) {
+                alert('Заполни все поля, браток!');
+                return;
+            }
+
+            // Форматируем даты
+            const formatDate = (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('ru-RU');
+            };
+
+            // Заполняем документ
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('previewAmount').textContent = amount;
+            document.getElementById('previewPurpose').textContent = purpose;
+            document.getElementById('previewDate').textContent = formatDate(date);
+            document.getElementById('previewReturnDate').textContent = formatDate(returnDate);
+
+            // Показываем документ и кнопку скачивания
+            document.getElementById('documentPreview').style.display = 'block';
+            document.getElementById('downloadBtn').style.display = 'block';
+
+            // Прокручиваем к документу
+            document.getElementById('documentPreview').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const documentContent = document.getElementById('documentPreview');
+            
+            html2canvas(documentContent).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                doc.save('Расписка_Хуйсуньбанк.pdf');
+            });
+        }
+
+        // Устанавливаем сегодняшнюю дату по умолчанию
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const returnDate = new Date();
+            returnDate.setMonth(returnDate.getMonth() + 1);
+            const returnDateStr = returnDate.toISOString().split('T')[0];
+            
+            document.getElementById('docDate').value = today;
+            document.getElementById('docReturnDate').value = returnDateStr;
+        });
     </script>
 </body>
 </html>
+
